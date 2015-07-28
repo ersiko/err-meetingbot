@@ -1,0 +1,9 @@
+[Python]
+Version=3
+
+[Core]
+Name = meetingbot
+Module = meetingbot
+
+[Documentation]
+Description = Tool to keep times on a meeting
