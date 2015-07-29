@@ -62,13 +62,14 @@ class MeetingBot(BotPlugin):
   def meeting_project(self, mess, args):
     date_today = self.current_date()
     time_now = self.current_time()
-    project = args.strip()
+    project = args.strip().title()
 
     meetings = self.shelf['meetings']
 
     if project in self.shelf['aliases']:
-        project = self.shelf['aliases'][project]
+      project = self.shelf['aliases'][project]
 
+    yield "Now we started talking about " + project
     meetings[date_today][time_now] = project
     self.shelf['meetings'] = meetings
 
@@ -134,46 +135,47 @@ class MeetingBot(BotPlugin):
     except KeyError:
       raise "There's no meeting for " + date + " in the database"
 
-    @botcmd(split_args_with=None)
-    def meeting_addalias(self, mess, args):
-        """ Assigns an alias to a project name
-        Example: !meeting addalias Project ProjectAlias
-        """
-        if len(args) <= 1:
-            yield "You need a project AND an alias"
-            return "Example: !meeting addalias Project Mega-Cool-Project"
-        aliases = self.shelf['aliases']
-        #projects = self.shelf['projects']
-        project = args[0].strip().title()
-        alias = " ".join(args[1:]).strip().title()
+  @botcmd(split_args_with=None)
+  def meeting_aliasadd(self, mess, args):
+    """ Assigns an alias to a project name
+    Example: !meeting addalias Project ProjectAlias
+    """
+    if len(args) <= 1:
+      yield "You need a project AND an alias"
+      return "Example: !meeting addalias Project Mega-Cool-Project"
+    aliases = self.shelf['aliases']
+    #projects = self.shelf['projects']
+    project = args[0].strip().title()
+    alias = " ".join(args[1:]).strip().title()
 
-        yield "Project " + project + " and alias " + alias
+    yield "Project " + project + " and alias " + alias
 
-        if alias in aliases:
-            yield "Warning: Alias " + alias + " was already there with value " + aliases[alias] + ". Overwriting..."
-        aliases[alias] = project
-        self.shelf['aliases'] = aliases
+    if alias in aliases:
+      yield "Warning: Alias " + alias + " was already there with value " + aliases[alias] + ". Overwriting..."
+    aliases[alias] = project
+    self.shelf['aliases'] = aliases
 
-    @botcmd
-    def meeting_aliaslist(self, mess, args):
-        """ Lists all available nicknames
-        Example: !meeting aliaslist
-        """
-        return self['aliases']
+  @botcmd
+  def meeting_aliaslist(self, mess, args):
+    """ Lists all available nicknames
+    Example: !meeting aliaslist
+    """
+    return self['aliases']
 
-    @botcmd
-    def meeting_aliasdel(self, mess, args):
-        """ Deletes a project alias
-        Example: !meeting aliasdel ProjectAlias
-        """
-        alias = args.strip().title()
-        aliases = self.shelf['aliases']
-        try:
-            del aliases[alias]
-            self.shelf['aliases'] = nicknames
-            return "Project alias " + alias + " deleted successfully"
-        except KeyError:
-            raise "There's no alias " + alias + " in the database"
+  @botcmd
+  def meeting_aliasdel(self, mess, args):
+    """ Deletes a project alias
+    Example: !meeting aliasdel ProjectAlias
+    """
+    alias = args.strip().title()
+    aliases = self.shelf['aliases']
+    try:
+      del aliases[alias]
+    except KeyError:
+      raise "There's no alias " + alias + " in the database"
+
+    self.shelf['aliases'] = aliases
+    return "Project alias " + alias + " deleted successfully"
 
 
   @staticmethod
@@ -197,3 +199,7 @@ class MeetingBot(BotPlugin):
   @botcmd
   def meeting_init(self, mess, args):
     self['meetings'] = {}
+  @botcmd
+
+  def meeting_aliasinit(self, mess, args):
+    self['aliases'] = {}
