@@ -25,7 +25,7 @@ class MeetingBot(BotPlugin):
     meetings = self.shelf['meetings']
 
     if date_today in meetings:
-      return "There is already meeting data for today. Do you want to reset it, append to it or create a new meeting for today?"
+      return "There is already meeting data for today. Do you want to delete it, append to it or create a new meeting for today?"
     else:
       meetings[date_today] = {time_now: 'TPGSDINT'}
       self.shelf['meetings'] = meetings
@@ -59,13 +59,17 @@ class MeetingBot(BotPlugin):
       return "No meetings today"
 
   @botcmd
-  def meeting_client(self, mess, args):
+  def meeting_project(self, mess, args):
     date_today = self.current_date()
     time_now = self.current_time()
-    client = args.strip()
+    project = args.strip()
 
     meetings = self.shelf['meetings']
-    meetings[date_today][time_now] = client
+
+    if project in self.shelf['aliases']:
+        project = self.shelf['aliases'][project]
+
+    meetings[date_today][time_now] = project
     self.shelf['meetings'] = meetings
 
   @botcmd
@@ -129,6 +133,48 @@ class MeetingBot(BotPlugin):
       return "Meeting " + date + " deleted successfully"
     except KeyError:
       raise "There's no meeting for " + date + " in the database"
+
+    @botcmd(split_args_with=None)
+    def meeting_addalias(self, mess, args):
+        """ Assigns an alias to a project name
+        Example: !meeting addalias Project ProjectAlias
+        """
+        if len(args) <= 1:
+            yield "You need a project AND an alias"
+            return "Example: !meeting addalias Project Mega-Cool-Project"
+        aliases = self.shelf['aliases']
+        #projects = self.shelf['projects']
+        project = args[0].strip().title()
+        alias = " ".join(args[1:]).strip().title()
+
+        yield "Project " + project + " and alias " + alias
+
+        if alias in aliases:
+            yield "Warning: Alias " + alias + " was already there with value " + aliases[alias] + ". Overwriting..."
+        aliases[alias] = project
+        self.shelf['aliases'] = aliases
+
+    @botcmd
+    def meeting_aliaslist(self, mess, args):
+        """ Lists all available nicknames
+        Example: !meeting aliaslist
+        """
+        return self['aliases']
+
+    @botcmd
+    def meeting_aliasdel(self, mess, args):
+        """ Deletes a project alias
+        Example: !meeting aliasdel ProjectAlias
+        """
+        alias = args.strip().title()
+        aliases = self.shelf['aliases']
+        try:
+            del aliases[alias]
+            self.shelf['aliases'] = nicknames
+            return "Project alias " + alias + " deleted successfully"
+        except KeyError:
+            raise "There's no alias " + alias + " in the database"
+
 
   @staticmethod
   def current_date():
