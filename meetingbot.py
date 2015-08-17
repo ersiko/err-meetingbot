@@ -27,7 +27,7 @@ class MeetingBot(BotPlugin):
     if date_today in meetings:
       return "There is already meeting data for today. Do you want to delete it, append to it or create a new meeting for today?"
     else:
-      meetings[date_today] = {time_now: 'TPGSDINT'}
+      meetings[date_today] = {time_now: 'internal'}
       self.shelf['meetings'] = meetings
       return "Meeting started!"
 
@@ -79,26 +79,29 @@ class MeetingBot(BotPlugin):
     meeting = sorted(self.shelf['meetings'][date_today].items())
     prev_time = None
     times = {}
-    for time, client in meeting:
-      if prev_time == None:
+    for time, project in meeting:
+      if prev_time == None: #first pass, nothing to compare to
         prev_time = time
-        prev_client = client
+        prev_project = project
       else:
-        time_used = time - prev_time
-# yield "Client " + prev_client + " used " + str(time_used) + " time"
+        time_used = time - prev_time #not the first pass, so we can compare time now to time before
         try:
-          times[prev_client] = times[prev_client] + time_used
+          times[prev_project] = times[prev_project] + time_used #adding the time to the project
         except KeyError:
-          times[prev_client] = time_used
-
+          times[prev_project] = time_used
         prev_time = time
-        prev_client = client
-    if prev_client != "END OF MEETING":
+        prev_project = project
+    if prev_project != "END OF MEETING":
       yield "WARNING: The meeting was not finalized with \"!meeting end\" command. You may want to end it now."
-    for client_meeting, time_meeting in times.items():
-      rest_seconds = time_meeting.seconds % 60
-      yield "Client " + client_meeting + " used " + str((time_meeting.seconds - rest_seconds) / 60) + " minutes " + str(rest_seconds) + " seconds"
+    for project_meeting, time_meeting in times.items():
+      yield "Client " + project_meeting + " used " + str((time_meeting.seconds - time_meeting.seconds % 60) / 60 + (time_meeting.seconds % 60 > 0)) + " minutes"
     return
+
+  @botcmd
+  def meeting_test(self, mess, args):
+      minute = 90
+      yield "Client " + str(minute / 60)
+
 
   @botcmd
   def meeting_summary(self, mess, args):
@@ -196,10 +199,10 @@ class MeetingBot(BotPlugin):
   def date_today(self, mess, args):
     return self.current_date()
 
-  @botcmd
-  def meeting_init(self, mess, args):
-    self['meetings'] = {}
-  @botcmd
+#  @botcmd
+#  def meeting_init(self, mess, args):
+#    self['meetings'] = {}
 
-  def meeting_aliasinit(self, mess, args):
-    self['aliases'] = {}
+#  @botcmd
+#  def meeting_aliasinit(self, mess, args):
+#    self['aliases'] = {}
