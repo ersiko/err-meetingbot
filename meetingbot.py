@@ -97,11 +97,6 @@ class MeetingBot(BotPlugin):
       yield "Client " + project_meeting + " used " + str((time_meeting.seconds - time_meeting.seconds % 60) / 60 + (time_meeting.seconds % 60 > 0)) + " minutes"
     return
 
-  @botcmd
-  def meeting_test(self, mess, args):
-      minute = 90
-      yield "Client " + str(minute / 60)
-
 
   @botcmd
   def meeting_summary(self, mess, args):
