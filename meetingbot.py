@@ -22,13 +22,13 @@ class MeetingBot(BotPlugin):
     """
     date_today = self.current_date()
     time_now = self.current_time()
-    meetings = self.shelf['meetings']
+    meetings = self['meetings']
 
     if date_today in meetings:
       return "There is already meeting data for today. Do you want to delete it, append to it or create a new meeting for today?"
     else:
       meetings[date_today] = {time_now: 'internal'}
-      self.shelf['meetings'] = meetings
+      self['meetings'] = meetings
       return "Meeting started!"
 
   @botcmd
@@ -39,9 +39,9 @@ class MeetingBot(BotPlugin):
     date_today = self.current_date()
     time_now = self.current_time()
 
-    meetings = self.shelf['meetings']
+    meetings = self['meetings']
     meetings[date_today][time_now] = "END OF MEETING"
-    self.shelf['meetings'] = meetings
+    self['meetings'] = meetings
 
   @botcmd
   def meeting_reset(self, mess, args):
@@ -49,11 +49,11 @@ class MeetingBot(BotPlugin):
     Example: !meeting reset
     """
     date_today = self.current_date()
-    meetings = self.shelf['meetings']
+    meetings = self['meetings']
 
     try:
       del meetings[date_today]
-      self.shelf['meetings'] = meetings
+      self['meetings'] = meetings
       return "Meeting data for day " + date_today + " successfully reset"
     except KeyError:
       return "No meetings today"
@@ -64,19 +64,19 @@ class MeetingBot(BotPlugin):
     time_now = self.current_time()
     project = args.strip().title()
 
-    meetings = self.shelf['meetings']
+    meetings = self['meetings']
 
-    if project in self.shelf['aliases']:
-      project = self.shelf['aliases'][project]
+    if project in self['aliases']:
+      project = self['aliases'][project]
 
     yield "Now we started talking about " + project
     meetings[date_today][time_now] = project
-    self.shelf['meetings'] = meetings
+    self['meetings'] = meetings
 
   @botcmd
   def meeting_times(self, mess, args):
     date_today = self.current_date()
-    meeting = sorted(self.shelf['meetings'][date_today].items())
+    meeting = sorted(self['meetings'][date_today].items())
     prev_time = None
     times = {}
     for time, project in meeting:
@@ -125,10 +125,10 @@ class MeetingBot(BotPlugin):
     Example: !meeting delete 2015-7-15
     """
     date = args.strip().title()
-    meetings = self.shelf['meetings']
+    meetings = self['meetings']
     try:
       del meetings[date]
-      self.shelf['meetings'] = meetings
+      self['meetings'] = meetings
       return "Meeting " + date + " deleted successfully"
     except KeyError:
       raise "There's no meeting for " + date + " in the database"
@@ -141,8 +141,8 @@ class MeetingBot(BotPlugin):
     if len(args) <= 1:
       yield "You need a project AND an alias"
       return "Example: !meeting addalias Project Mega-Cool-Project"
-    aliases = self.shelf['aliases']
-    #projects = self.shelf['projects']
+    aliases = self['aliases']
+    #projects = self['projects']
     project = args[0].strip().title()
     alias = " ".join(args[1:]).strip().title()
 
@@ -151,7 +151,7 @@ class MeetingBot(BotPlugin):
     if alias in aliases:
       yield "Warning: Alias " + alias + " was already there with value " + aliases[alias] + ". Overwriting..."
     aliases[alias] = project
-    self.shelf['aliases'] = aliases
+    self['aliases'] = aliases
 
   @botcmd
   def meeting_aliaslist(self, mess, args):
@@ -166,13 +166,13 @@ class MeetingBot(BotPlugin):
     Example: !meeting aliasdel ProjectAlias
     """
     alias = args.strip().title()
-    aliases = self.shelf['aliases']
+    aliases = self['aliases']
     try:
       del aliases[alias]
     except KeyError:
       raise "There's no alias " + alias + " in the database"
 
-    self.shelf['aliases'] = aliases
+    self['aliases'] = aliases
     return "Project alias " + alias + " deleted successfully"
 
 
