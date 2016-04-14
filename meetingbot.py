@@ -27,7 +27,7 @@ class MeetingBot(BotPlugin):
     if date_today in meetings:
       return "There is already meeting data for today. Do you want to delete it, append to it or create a new meeting for today?"
     else:
-      meetings[date_today] = {time_now: 'internal'}
+      meetings[date_today] = {time_now: 'Internal'}
       self['meetings'] = meetings
       return "Meeting started!"
 
