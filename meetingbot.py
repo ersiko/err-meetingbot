@@ -238,10 +238,10 @@ class MeetingBot(BotPlugin):
 #  def meeting_init(self, mess, args):
 #    del self['meetings'] 
 
-#  @botcmd
-#  def meeting_aliasinit(self, mess, args):
-#    self['aliases'] = {}
-#    return
+  @botcmd
+  def meeting_aliasinit(self, mess, args):
+    self['aliases'] = {}
+    return
     
 #  @botcmd
 #  def meeting_test(self, mess, args):
